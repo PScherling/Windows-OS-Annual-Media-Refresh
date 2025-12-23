@@ -128,7 +128,7 @@ Example `RefreshInfo.json`:
 ```json
 {
   "Year": 2025,
-  "ISO": "Windows_11_LTSC_2025.iso",
+  "ISO": "Windows_11_LTSC.iso",
   "ISO_SHA256": "ABCDEF123456...",
   "LCU": "windows11-kbxxxxxxx-x64.msu",
   "Completed": "2025-12-23T18:42:10"
