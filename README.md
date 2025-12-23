@@ -55,16 +55,17 @@ mediaRefresh/
 │  │  └─ windows11-kbxxxxxxx-x64.msu
 │  ├─ SafeOS/
 │  │  └─ SafeOS_DU.cab
-│  └─ DotNet/
-│     └─ dotnet-kbxxxxxxx.msu
+│  ├─ DotNet/
+│  │  └─ dotnet-kbxxxxxxx.msu
+│  └─ SSU/
+│  │  └─ ssu-kbxxxxxxx.msu
 │
 ├─ base/
 │  ├─ 2025/
 │  │  ├─ oldMedia/
-│  │  └─ newMedia/
-│  │     ├─ sources/
-│  │     ├─ RefreshInfo.json
-│  │     └─ .refresh_completed
+│  │  ├─ newMedia/
+│  │  ├─ RefreshInfo.json
+│  │  └─ .refresh_completed
 │
 └─ temp/
 ```
@@ -75,7 +76,7 @@ mediaRefresh/
 
 1. Place the **base ISO** into `iso/`
 2. Place the **latest LCU** into `packages/CU/`
-3. (Optional) Place SafeOS and .NET updates into their folders
+3. (Optional) Place SafeOS, SSUs and .NET updates into their folders
 4. Run the script **as Administrator**
 5. The script will:
    - Mount the ISO
