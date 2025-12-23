@@ -9,6 +9,8 @@ This project automates the refresh of:
 
 by injecting the latest cumulative updates into the base installation media in a **safe, repeatable, auditable, and logged** way.
 
+<img width="904" height="506" alt="image" src="https://github.com/user-attachments/assets/305069eb-adca-4084-a443-1d0ad4c81ee3" />
+
 My solution is inspired by this article from microsoft: https://learn.microsoft.com/en-us/windows/deployment/update/media-dynamic-update
 
 ---
