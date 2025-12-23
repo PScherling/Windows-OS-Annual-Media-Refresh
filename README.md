@@ -9,6 +9,8 @@ This project automates the refresh of:
 
 by injecting the latest cumulative updates into the base installation media in a **safe, repeatable, auditable, and logged** way.
 
+My solution is inspired by this article from microsoft: https://learn.microsoft.com/en-us/windows/deployment/update/media-dynamic-update
+
 ---
 
 ## ✨ Features
