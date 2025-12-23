@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     Annual offline refresh of Windows 10/11 Enterprise LTSC or Windows Server 2021/2025 base installation media.
 
@@ -83,7 +83,6 @@ $DOTNET_DIR     = "$BASE_PATH\packages\DotNet"
 $SSU_DIR        = "$BASE_PATH\packages\SSU"
 
 $SUCCESS_MARKER = "$BASE_YEAR_PATH\.refresh_completed"
-$OldStamp       = "$BASE_YEAR_PATH\RefreshInfo.json"
 
 #------------------------------------------------------------
 # LOGGING
@@ -152,6 +151,7 @@ $ISO = Get-ChildItem $ISO_DIR -File | Sort-Object LastWriteTime -Descending | Se
 if (-not $ISO) { throw "No ISO found in $ISO_DIR" }
 
 # ISO consistency check (only if oldMedia exists)
+$OldStamp       = "$BASE_YEAR_PATH\$($ISO.Name)_RefreshInfo.json"
 if (Test-Path $OldStamp) {
     $OldInfo = Get-Content $OldStamp | ConvertFrom-Json
     $CurrentISOHash = (Get-FileHash $ISO.FullName -Algorithm SHA256).Hash
@@ -375,10 +375,6 @@ $Stamp = @{
     Runtime = ("{0:hh\:mm\:ss}" -f $Duration)
 }
 $Stamp | ConvertTo-Json -Depth 3 |
-    Set-Content "$BASE_YEAR_PATH\RefreshInfo.json" -Encoding UTF8
+    Set-Content "$BASE_YEAR_PATH\$($ISO.Name)_RefreshInfo.json" -Encoding UTF8
 
 Write-Log "Media refresh completed successfully" "OK"
-
-
-
-
