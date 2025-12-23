@@ -82,8 +82,6 @@ $SAFEOS_DIR     = "$BASE_PATH\packages\SafeOS"
 $DOTNET_DIR     = "$BASE_PATH\packages\DotNet"
 $SSU_DIR        = "$BASE_PATH\packages\SSU"
 
-$SUCCESS_MARKER = "$BASE_YEAR_PATH\.refresh_completed"
-
 #------------------------------------------------------------
 # LOGGING
 #------------------------------------------------------------
@@ -151,6 +149,7 @@ $ISO = Get-ChildItem $ISO_DIR -File | Sort-Object LastWriteTime -Descending | Se
 if (-not $ISO) { throw "No ISO found in $ISO_DIR" }
 
 # ISO consistency check (only if oldMedia exists)
+$SUCCESS_MARKER = "$BASE_YEAR_PATH\.$($ISO.Name)_refresh_completed"
 $OldStamp       = "$BASE_YEAR_PATH\$($ISO.Name)_RefreshInfo.json"
 if (Test-Path $OldStamp) {
     $OldInfo = Get-Content $OldStamp | ConvertFrom-Json
@@ -378,3 +377,6 @@ $Stamp | ConvertTo-Json -Depth 3 |
     Set-Content "$BASE_YEAR_PATH\$($ISO.Name)_RefreshInfo.json" -Encoding UTF8
 
 Write-Log "Media refresh completed successfully" "OK"
+
+
+
