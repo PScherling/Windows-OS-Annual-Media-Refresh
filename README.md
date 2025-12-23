@@ -7,7 +7,7 @@ This project automates the refresh of:
 - **Windows 11 Enterprise LTSC**
 - **Windows Server 2025**
 
-by injecting the latest cumulative updates into the base installation media in a **safe, repeatable, and auditable** way.
+by injecting the latest cumulative updates into the base installation media in a **safe, repeatable, auditable, and logged** way.
 
 ---
 
@@ -28,6 +28,11 @@ by injecting the latest cumulative updates into the base installation media in a
 - **WinRE-safe servicing**
   - Uses **SafeOS Dynamic Update** for Windows Recovery Environment
   - Avoids unsupported LCU injection into WinRE
+
+- **Enterprise logging**
+  - Timestamped logfile per execution
+  - Console + file logging with severity levels (INFO / OK / WARN / ERROR)
+  - Total runtime measurement
 
 - **Failure-resilient**
   - Automatic cleanup of stale DISM mounts
@@ -58,14 +63,18 @@ mediaRefresh/
 │  ├─ DotNet/
 │  │  └─ dotnet-kbxxxxxxx.msu
 │  └─ SSU/
-│  │  └─ ssu-kbxxxxxxx.msu
+│     └─ ssu-kbxxxxxxx.msu
 │
 ├─ base/
 │  ├─ 2025/
 │  │  ├─ oldMedia/
 │  │  ├─ newMedia/
-│  │  ├─ RefreshInfo.json
-│  │  └─ .refresh_completed
+│  │  │  ├─ sources/
+│  │  │  ├─ RefreshInfo.json
+│  │  │  └─ .refresh_completed
+│
+├─ log/
+│  │  └─ mediaRefresh_2025-12-23_18-42-10.log
 │
 └─ temp/
 ```
@@ -76,7 +85,7 @@ mediaRefresh/
 
 1. Place the **base ISO** into `iso/`
 2. Place the **latest LCU** into `packages/CU/`
-3. (Optional) Place SafeOS, SSUs and .NET updates into their folders
+3. (Optional) Place SafeOS and .NET updates into their folders
 4. Run the script **as Administrator**
 5. The script will:
    - Mount the ISO
@@ -84,6 +93,7 @@ mediaRefresh/
    - Create a serviced `newMedia`
    - Update WinRE safely
    - Validate results
+   - Log all actions and runtime
    - Lock the year with a completion marker
 
 ---
@@ -101,20 +111,6 @@ mediaRefresh/
 
 ---
 
-## 📌 Intended Usage
-
-- Run **once per year** (typically December)
-- Maintain **clean, versioned base media**
-- Use in **enterprise / WDS / MDT environments**
-- Ideal for **air-gapped or controlled networks**
-
-This is **not** intended for:
-- Monthly media rebuilds
-- Consumer editions
-- Online servicing
-
----
-
 ## 📄 Output Artifacts
 
 Each successful run produces:
@@ -123,6 +119,7 @@ Each successful run produces:
 - Updated WinRE
 - `RefreshInfo.json` (audit metadata)
 - `.refresh_completed` marker (overwrite protection)
+- Timestamped execution logfile
 
 Example `RefreshInfo.json`:
 
@@ -132,7 +129,8 @@ Example `RefreshInfo.json`:
   "ISO": "Windows_11_LTSC.iso",
   "ISO_SHA256": "ABCDEF123456...",
   "LCU": "windows11-kbxxxxxxx-x64.msu",
-  "Completed": "2025-12-23T18:42:10"
+  "Completed": "2025-12-23T18:42:10",
+  "Runtime": "02:46:15"
 }
 ```
 
