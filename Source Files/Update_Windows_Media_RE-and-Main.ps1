@@ -375,9 +375,10 @@ $Stamp = @{
     Runtime = ("{0:hh\:mm\:ss}" -f $Duration)
 }
 $Stamp | ConvertTo-Json -Depth 3 |
-    Set-Content "$NEW_MEDIA\RefreshInfo.json" -Encoding UTF8
+    Set-Content "$BASE_YEAR_PATH\RefreshInfo.json" -Encoding UTF8
 
 Write-Log "Media refresh completed successfully" "OK"
+
 
 
 
