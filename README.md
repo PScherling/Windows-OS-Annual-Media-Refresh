@@ -111,6 +111,8 @@ mediaRefresh/
 | ISO mismatch | ❌ Hard fail |
 | Stale DISM mounts | ✔ Auto-cleaned |
 
+<img width="902" height="455" alt="image" src="https://github.com/user-attachments/assets/bf7b760a-68b4-4425-bd66-c9410fbcb125" />
+
 ---
 
 ## 📄 Output Artifacts
