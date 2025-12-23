@@ -156,5 +156,10 @@ Example `RefreshInfo.json`:
 
 ## 👤 Author
 
-**Patrick Scherling**  
-GitHub: https://github.com/PScherling  
+**Author:** Patrick Scherling  
+**Contact:** @Patrick Scherling  
+
+---
+
+> ⚡ *“Automate. Standardize. Simplify.”*  
+> Part of Patrick Scherling’s IT automation suite for modern Windows Server infrastructure management.
