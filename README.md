@@ -87,11 +87,12 @@ mediaRefresh/
 
 ## 🚀 Workflow Overview
 
-1. Place the **base ISO** into `iso/`
-2. Place the **latest LCU** into `packages/CU/`
-3. (Optional) Place SafeOS and .NET updates into their folders
-4. Run the script **as Administrator**
-5. The script will:
+1. Create the **main directory** `D:\mediaReFresh/` including subdirectoryíes `iso/`, `packages/`, `packages/CU` etc. like in the structure above 
+2. Place the **base ISO** into `iso/`
+3. Place the **latest LCU** into `packages/CU/`
+4. (Optional) Place SafeOS and .NET updates into their folders
+5. Run the script **as Administrator**
+6. The script will:
    - Mount the ISO
    - Extract it into a year-specific `oldMedia`
    - Create a serviced `newMedia`
