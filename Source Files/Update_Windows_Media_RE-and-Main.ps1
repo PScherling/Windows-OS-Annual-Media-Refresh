@@ -365,8 +365,7 @@ if ($FinalImages.Count -ne $Images.Count) {
     throw "Final install.wim image count mismatch. Aborting completion marker."
 }
 else{
-    Write-Log "Marking refresh as completed"
-    New-Item -ItemType File -Path $SUCCESS_MARKER -Force | Out-Null
+    
 
     $ScriptEndTime = Get-Date
     $Duration = $ScriptEndTime - $ScriptStartTime
@@ -380,8 +379,23 @@ else{
         Completed   = (Get-Date)
         Runtime = ("{0:hh\:mm\:ss}" -f $Duration)
     }
-    $Stamp | ConvertTo-Json -Depth 3 |
-        Set-Content "$BASE_YEAR_PATH\$($ISO.Name)\RefreshInfo.json" -Encoding UTF8
+    
+    try{
+        $Stamp | ConvertTo-Json -Depth 3 | Set-Content "$BASE_YEAR_PATH\$($ISO.Name)\RefreshInfo.json" -Encoding UTF8
+    }
+    catch{
+        Write-Log "FATAL-ERROR: RefreshInfo file could not be created." "ERROR"
+        throw "RefreshInfo file could not be created."
+    }
+
+    try{
+        Write-Log "Marking refresh as completed"
+        New-Item -ItemType File -Path $SUCCESS_MARKER -Force | Out-Null
+    }
+    catch{
+        Write-Log "FATAL-ERROR: Success marker file could not be created." "ERROR"
+        throw "Success marker file could not be created."
+    }
 
     Write-Log "Media refresh completed successfully" "OK"
 
