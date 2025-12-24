@@ -133,6 +133,7 @@ Write-Host "--------------------------------------------------------------------
 #------------------------------------------------------------
 # Pre-flight DISM cleanup (critical)
 #------------------------------------------------------------
+Write-Log "Script Version: $Version"
 Write-Log "Target refresh year: $Year"
 if ((Get-Date).Month -ne 12) {
     Write-Log "This script is intended for December LTSC refreshes." "WARN"
