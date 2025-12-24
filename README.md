@@ -87,9 +87,9 @@ mediaRefresh/
 
 ## 🚀 Workflow Overview
 
-1. Create the **main directory** `D:\mediaReFresh/` including subdirectoryíes `iso/`, `packages/`, `packages/CU` etc. like in the structure above 
-2. Place the **base ISO** into `iso/`
-3. Place the **latest LCU** into `packages/CU/`
+1. Create the **main directory** `D:\mediaReFresh\` including subdirectoryíes `iso\`, `packages\`, `packages\CU` etc. like in the structure above 
+2. Place the **base ISO** into `iso\`
+3. Place the **latest LCU** into `packages\CU\`
 4. (Optional) Place SafeOS and .NET updates into their folders
 5. Run the script **as Administrator**
 6. The script will:
