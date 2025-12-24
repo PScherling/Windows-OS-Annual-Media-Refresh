@@ -32,9 +32,10 @@
           Contact: @Patrick Scherling
           Primary: @Patrick Scherling
           Created: 2025-12-23
-          Modified: 2025-12-23
+          Modified: 2025-12-24
 
           Version - 0.0.1 - (2025-12-23) - Finalized functional version 1 (enterprise-safe, rerunnable, year-isolated, WinRE-compliant).
+          Version - 0.0.2 - (2025-12-24) - Restructuring the handleing of "base" media directory and workflow
 
 
 .EXAMPLE
@@ -65,13 +66,12 @@ $ScriptStartTime = Get-Date
 #------------------------------------------------------------
 # Paths
 #------------------------------------------------------------
+$Version        = "0.0.2"
 $Year           = (Get-Date).Year
 $BASE_PATH      = "D:\mediaRefresh"
 $BASE_YEAR_PATH = "$BASE_PATH\base\$Year"
 $LogDir         = "$BASE_PATH\log"
 $ISO_DIR        = "$BASE_PATH\iso"
-$OLD_MEDIA      = "$BASE_YEAR_PATH\oldMedia"
-$NEW_MEDIA      = "$BASE_YEAR_PATH\newMedia"
 $WORK           = "$BASE_PATH\temp"
 
 $MAIN_MOUNT     = "$WORK\MainOS"
@@ -126,7 +126,7 @@ Write-Host -ForegroundColor Cyan "
     +----+ +----+       
 "
 Write-Host "-----------------------------------------------------------------------------------"
-Write-Host "              Windows Offline Media Refresh"
+Write-Host "              Windows Offline Media Refresh | Version $Version"
 Write-Host "-----------------------------------------------------------------------------------"
 
 
@@ -148,18 +148,6 @@ dism /Cleanup-Wim | Out-Null
 $ISO = Get-ChildItem $ISO_DIR -File | Sort-Object LastWriteTime -Descending | Select-Object -First 1
 if (-not $ISO) { throw "No ISO found in $ISO_DIR" }
 
-# ISO consistency check (only if oldMedia exists)
-$SUCCESS_MARKER = "$BASE_YEAR_PATH\.$($ISO.Name)_refresh_completed"
-$OldStamp       = "$BASE_YEAR_PATH\$($ISO.Name)_RefreshInfo.json"
-if (Test-Path $OldStamp) {
-    $OldInfo = Get-Content $OldStamp | ConvertFrom-Json
-    $CurrentISOHash = (Get-FileHash $ISO.FullName -Algorithm SHA256).Hash
-
-    if ($OldInfo.ISO_SHA256 -ne $CurrentISOHash) {
-        throw "ISO mismatch detected for year $Year. Refusing to mix base media."
-    }
-}
-
 $LCU = Get-ChildItem $LCU_DIR -Filter "*.msu" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
 if (-not $LCU) { throw "No LCU found in $LCU_DIR" }
 
@@ -170,6 +158,12 @@ Write-Log "ISO     : $($ISO.Name)"
 Write-Log "LCU     : $($LCU.Name)"
 Write-Log "SafeOS  : $($SafeOS.Count) package(s)"
 Write-Log "DotNet  : $($DotNetCUs.Count) package(s)"
+
+
+$OLD_MEDIA      = "$BASE_YEAR_PATH\$($ISO.Name)\oldMedia"
+$NEW_MEDIA      = "$BASE_YEAR_PATH\$($ISO.Name)\newMedia"
+$SUCCESS_MARKER = "$BASE_YEAR_PATH\$($ISO.Name)\.refresh_completed"
+$OldStamp       = "$BASE_YEAR_PATH\$($ISO.Name)\_RefreshInfo.json"
 
 
 #------------------------------------------------------------
@@ -187,13 +181,25 @@ elseif (-not (Test-Path $NEW_MEDIA) -and -not (Test-Path $SUCCESS_MARKER)) {
     Log "This is a fresh run"
 }
 #>
+
+# ISO consistency check
+if (Test-Path $OldStamp) {
+    $OldInfo = Get-Content $OldStamp | ConvertFrom-Json
+    $CurrentISOHash = (Get-FileHash $ISO.FullName -Algorithm SHA256).Hash
+
+    if ($OldInfo.ISO_SHA256 -ne $CurrentISOHash) {
+        Write-Log "ISO mismatch detected for $($ISO.Name) for year $Year. Refusing to mix base media." "ERROR"
+        throw "ISO mismatch detected for $($ISO.Name) for year $Year. Refusing to mix base media."
+    }
+}
+
 if (Test-Path $SUCCESS_MARKER) {
-    Write-Log "Refresh for year $Year already completed successfully. Refusing to overwrite." "ERROR"
-    throw "Refresh for year $Year already completed successfully. Refusing to overwrite."
+    Write-Log "Refresh for $($ISO.Name) for year $Year already completed successfully. Refusing to overwrite." "ERROR"
+    throw "Refresh for $($ISO.Name) for year $Year already completed successfully. Refusing to overwrite."
 }
 
 if (Test-Path $NEW_MEDIA) {
-    Write-Log "Incomplete or failed run detected for year $Year. Cleaning newMedia." "WARN"
+    Write-Log "Incomplete or failed run detected for $($ISO.Name) for year $Year. Cleaning newMedia." "WARN"
     Remove-Item $NEW_MEDIA -Recurse -Force -ErrorAction SilentlyContinue
 }
 else {
