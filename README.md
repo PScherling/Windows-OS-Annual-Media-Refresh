@@ -67,13 +67,13 @@ mediaRefresh/
 │  ├─ DotNet/
 │  │  └─ dotnet-kbxxxxxxx.msu
 │  └─ SSU/
-│     └─ ssu-kbxxxxxxx.msu
+│     └─ ssu-kbxxxxxxx.msu or .cab
 │
 ├─ base/
 │  ├─ 2025/
-│  │  ├─ oldMedia/
-│  │  ├─ newMedia/
-│  │  │  ├─ sources/
+|  |  ├─ Windows_11_LTSC.iso/
+│  │  |  ├─ oldMedia/
+│  │  |  ├─ newMedia/
 │  │  │  ├─ RefreshInfo.json
 │  │  │  └─ .refresh_completed
 │
