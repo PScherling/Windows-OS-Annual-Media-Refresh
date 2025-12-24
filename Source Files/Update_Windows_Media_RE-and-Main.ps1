@@ -151,13 +151,15 @@ if (-not $ISO) { throw "No ISO found in $ISO_DIR" }
 $LCU = Get-ChildItem $LCU_DIR -Filter "*.msu" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
 if (-not $LCU) { throw "No LCU found in $LCU_DIR" }
 
-$SafeOS = Get-ChildItem $SAFEOS_DIR -Filter "*.cab" -ErrorAction SilentlyContinue
-$DotNetCUs = Get-ChildItem $DOTNET_DIR -Filter "*.msu" -ErrorAction SilentlyContinue
+$SafeOS = Get-ChildItem $SAFEOS_DIR -File -Include "*.cab" -ErrorAction SilentlyContinue
+$DotNetCUs = Get-ChildItem $DOTNET_DIR -File -Include "*.msu" -ErrorAction SilentlyContinue
+$SSUs = Get-ChildItem $SSU_DIR -File -Include "*.msu", "*.cab" -ErrorAction SilentlyContinue
 
 Write-Log "ISO     : $($ISO.Name)"
 Write-Log "LCU     : $($LCU.Name)"
 Write-Log "SafeOS  : $($SafeOS.Count) package(s)"
 Write-Log "DotNet  : $($DotNetCUs.Count) package(s)"
+Write-Log "SSU     : $($SSUs.Count) package(s)"
 
 
 $OLD_MEDIA      = "$BASE_YEAR_PATH\$($ISO.Name)\oldMedia"
