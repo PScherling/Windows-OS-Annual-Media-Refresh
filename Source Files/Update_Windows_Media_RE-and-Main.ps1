@@ -367,25 +367,22 @@ if ($FinalImages.Count -ne $Images.Count) {
 else{
     Write-Log "Marking refresh as completed"
     New-Item -ItemType File -Path $SUCCESS_MARKER -Force | Out-Null
+
+    $ScriptEndTime = Get-Date
+    $Duration = $ScriptEndTime - $ScriptStartTime
+    Write-Log ("Total runtime: {0:hh\:mm\:ss}" -f $Duration)
+
+    $Stamp = @{
+        Year        = $Year
+        ISO         = $ISO.Name
+        ISO_SHA256  = (Get-FileHash $ISO.FullName -Algorithm SHA256).Hash
+        LCU         = $LCU.Name
+        Completed   = (Get-Date)
+        Runtime = ("{0:hh\:mm\:ss}" -f $Duration)
+    }
+    $Stamp | ConvertTo-Json -Depth 3 |
+        Set-Content "$BASE_YEAR_PATH\$($ISO.Name)\RefreshInfo.json" -Encoding UTF8
+
+    Write-Log "Media refresh completed successfully" "OK"
+
 }
-
-
-$ScriptEndTime = Get-Date
-$Duration = $ScriptEndTime - $ScriptStartTime
-Write-Log ("Total runtime: {0:hh\:mm\:ss}" -f $Duration)
-
-$Stamp = @{
-    Year        = $Year
-    ISO         = $ISO.Name
-    ISO_SHA256  = (Get-FileHash $ISO.FullName -Algorithm SHA256).Hash
-    LCU         = $LCU.Name
-    Completed   = (Get-Date)
-    Runtime = ("{0:hh\:mm\:ss}" -f $Duration)
-}
-$Stamp | ConvertTo-Json -Depth 3 |
-    Set-Content "$BASE_YEAR_PATH\$($ISO.Name)_RefreshInfo.json" -Encoding UTF8
-
-Write-Log "Media refresh completed successfully" "OK"
-
-
-
