@@ -147,10 +147,16 @@ dism /Cleanup-Wim | Out-Null
 # Select inputs (strict)
 #------------------------------------------------------------
 $ISO = Get-ChildItem $ISO_DIR -File | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-if (-not $ISO) { throw "No ISO found in $ISO_DIR" }
+if (-not $ISO) { 
+    Write-Log "No ISO found in $ISO_DIR" "ERROR"
+    throw "No ISO found in this directory" 
+}
 
 $LCU = Get-ChildItem $LCU_DIR -Filter "*.msu" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-if (-not $LCU) { throw "No LCU found in $LCU_DIR" }
+if (-not $LCU) { 
+    Write-Log "No LCU found in $LCU_DIR" "ERROR"
+    throw "No LCU found in this directory" 
+}
 
 $SafeOS = Get-ChildItem $SAFEOS_DIR -File -Include "*.cab" -ErrorAction SilentlyContinue
 $DotNetCUs = Get-ChildItem $DOTNET_DIR -File -Include "*.msu" -ErrorAction SilentlyContinue
@@ -192,13 +198,13 @@ if (Test-Path $OldStamp) {
 
     if ($OldInfo.ISO_SHA256 -ne $CurrentISOHash) {
         Write-Log "ISO mismatch detected for $($ISO.Name) for year $Year. Refusing to mix base media." "ERROR"
-        throw "ISO mismatch detected for $($ISO.Name) for year $Year. Refusing to mix base media."
+        throw "ISO mismatch detected for this iso for this year. Refusing to mix base media."
     }
 }
 
 if (Test-Path $SUCCESS_MARKER) {
     Write-Log "Refresh for $($ISO.Name) for year $Year already completed successfully. Refusing to overwrite." "ERROR"
-    throw "Refresh for $($ISO.Name) for year $Year already completed successfully. Refusing to overwrite."
+    throw "Refresh for this iso for this year already completed successfully. Refusing to overwrite."
 }
 
 if (Test-Path $NEW_MEDIA) {
