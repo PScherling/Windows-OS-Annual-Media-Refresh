@@ -90,10 +90,10 @@ mediaRefresh/
 1. Create the **main directory** `D:\mediaReFresh\` including subdirectoryíes `iso\`, `packages\`, `packages\CU` etc. like in the structure above 
 2. Place the **base ISO** into `iso\`
 3. Place the **latest LCU** into `packages\CU\`
-4. > In case you need to install dependencies (like for KB5071547, you need KB5030216 to install too), place both .msu files in the directory and update the filename this for example:
+4. > In case you need to install dependencies (like for KB5071547, you need KB5030216 to install too), place both .msu files in the directory and update the filename to this for example:
    > `packages\CU\1_KB5030216.msu`
    > `packages\CU\2_KB5071547.msu`
-   > This guarantees, that the updates will be integrated in the image in the correct order
+   > This guarantees, that the updates will be integrated in the correct order
 5. (Optional) Place SafeOS and .NET updates into their folders
 6. Run the script **as Administrator**
 7. The script will:
