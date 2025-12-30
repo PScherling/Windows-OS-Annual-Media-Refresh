@@ -137,7 +137,7 @@ Write-Host "--------------------------------------------------------------------
 #------------------------------------------------------------
 Write-Log "Script Version: $Version"
 Write-Log "Target refresh year: $Year"
-if ((Get-Date).Month -ne 11) {
+if ((Get-Date).Month -ne 12) {
     Write-Log "This script is intended to run refreshes in December." "WARN"
     do {
         $continue = Read-Host -Prompt " Do you want to continue (y/n)"
@@ -468,3 +468,4 @@ else{
     Write-Log "Media refresh completed successfully" "OK"
 
 }
+
