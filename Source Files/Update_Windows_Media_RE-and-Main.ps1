@@ -32,11 +32,12 @@
           Contact: @Patrick Scherling
           Primary: @Patrick Scherling
           Created: 2025-12-23
-          Modified: 2025-12-29
+          Modified: 2025-12-30
 
           Version - 0.0.1 - (2025-12-23) - Finalized functional version 1 (enterprise-safe, rerunnable, year-isolated, WinRE-compliant).
           Version - 0.0.2 - (2025-12-24) - Restructuring the handleing of "base" media directory and workflow
           Version - 0.0.3 - (2025-12-29) - Errorhandling for mounted windows images after foregoing failure
+          Version - 0.0.4 - (2025-12-30) - Prompt if user executes script not in december
 
 
 .EXAMPLE
@@ -67,7 +68,7 @@ $ScriptStartTime = Get-Date
 #------------------------------------------------------------
 # Paths
 #------------------------------------------------------------
-$Version        = "0.0.3"
+$Version        = "0.0.4"
 $Year           = (Get-Date).Year
 $BASE_PATH      = "D:\mediaRefresh"
 $BASE_YEAR_PATH = "$BASE_PATH\base\$Year"
@@ -136,8 +137,20 @@ Write-Host "--------------------------------------------------------------------
 #------------------------------------------------------------
 Write-Log "Script Version: $Version"
 Write-Log "Target refresh year: $Year"
-if ((Get-Date).Month -ne 12) {
-    Write-Log "This script is intended for December LTSC refreshes." "WARN"
+if ((Get-Date).Month -ne 11) {
+    Write-Log "This script is intended to run refreshes in December." "WARN"
+    do {
+        $continue = Read-Host -Prompt " Do you want to continue (y/n)"
+        $continue = $continue.ToLower()
+    } until ($continue -in @("y","n"))
+
+    if ($continue -eq "n") {
+        Write-Log "Execution aborted by user." "WARN"
+        exit
+    }
+    elseif($continue -eq "y"){
+        Write-Log "Execution continues due to user input." "WARN"
+    }
 }
 
 Write-Log "Pre-flight DISM cleanup"
@@ -455,4 +468,3 @@ else{
     Write-Log "Media refresh completed successfully" "OK"
 
 }
-
