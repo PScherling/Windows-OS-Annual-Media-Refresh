@@ -5,7 +5,7 @@ Enterprise-grade PowerShell script for **annual offline servicing of Windows ins
 This project automates the refresh of:
 
 - **Windows 10/11 Enterprise LTSC**
-- **Windows Server 2021/2025**
+- **Windows Server 2022/2025**
 
 by injecting the latest cumulative updates into the base installation media in a **safe, repeatable, auditable, and logged** way.
 
