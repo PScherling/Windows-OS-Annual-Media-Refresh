@@ -38,6 +38,7 @@
           Version - 0.0.2 - (2025-12-24) - Restructuring the handleing of "base" media directory and workflow
           Version - 0.0.3 - (2025-12-29) - Errorhandling for mounted windows images after foregoing failure
           Version - 0.0.4 - (2025-12-30) - Prompt if user executes script not in december
+          Version - 0.0.5 - (2025-12-30) - Handle SSUs correctly
 
 
 .EXAMPLE
@@ -68,7 +69,7 @@ $ScriptStartTime = Get-Date
 #------------------------------------------------------------
 # Paths
 #------------------------------------------------------------
-$Version        = "0.0.4"
+$Version        = "0.0.5"
 $Year           = (Get-Date).Year
 $BASE_PATH      = "D:\mediaRefresh"
 $BASE_YEAR_PATH = "$BASE_PATH\base\$Year"
@@ -172,9 +173,9 @@ if (-not $LCU) {
     throw "No LCU found in this directory" 
 }
 
-$SafeOS = Get-ChildItem $SAFEOS_DIR -File -Include "*.cab" -ErrorAction SilentlyContinue
-$DotNetCUs = Get-ChildItem $DOTNET_DIR -File -Include "*.msu" -ErrorAction SilentlyContinue
-$SSUs = Get-ChildItem $SSU_DIR -File -Include "*.msu", "*.cab" -ErrorAction SilentlyContinue
+$SafeOS = Get-ChildItem $SAFEOS_DIR -Filter "*.cab" | Sort-Object LastWriteTime -Descending -ErrorAction SilentlyContinue
+$DotNetCUs = Get-ChildItem $DOTNET_DIR -Filter "*.msu" | Sort-Object LastWriteTime -Descending -ErrorAction SilentlyContinue
+$SSUs = Get-ChildItem $SSU_DIR -Filter "*.msu" | Sort-Object LastWriteTime -Descending -ErrorAction SilentlyContinue
 
 Write-Log "ISO     : $($ISO.Name)"
 Write-Log "LCU     : $($LCU.Name)"
@@ -382,9 +383,11 @@ foreach ($Image in $Images) {
         #----------------------------------------------------
         # Main OS servicing
         #----------------------------------------------------
-        foreach ($lcufile in $LCU){
-            Write-Log "Adding LCU: $($lcufile.Name)"
-            Add-WindowsPackage -Path $MAIN_MOUNT -PackagePath $lcufile.FullName #| Out-Null
+        if ($SSUs) {
+            foreach ($pkg in $SSUs) {
+                Write-Log "Adding SSU: $($pkg.Name)"
+                Add-WindowsPackage -Path $MAIN_MOUNT -PackagePath $pkg.FullName #| Out-Null
+            }
         }
 
         if ($DotNetCUs) {
@@ -393,6 +396,12 @@ foreach ($Image in $Images) {
                 Add-WindowsPackage -Path $MAIN_MOUNT -PackagePath $pkg.FullName #| Out-Null
             }
         }
+
+        foreach ($lcufile in $LCU){
+            Write-Log "Adding LCU: $($lcufile.Name)"
+            Add-WindowsPackage -Path $MAIN_MOUNT -PackagePath $lcufile.FullName #| Out-Null
+        }
+
         Write-Log "Starting DISM image cleanup"
         DISM /image:$MAIN_MOUNT /cleanup-image /StartComponentCleanup #| Out-Null
     }
@@ -444,7 +453,7 @@ else{
         ISO         = $ISO.Name
         ISO_SHA256  = (Get-FileHash $ISO.FullName -Algorithm SHA256).Hash
         LCU         = $LCU.Name
-        Completed   = (Get-Date)
+        Completed   = $ScriptEndTime.DateTime
         Runtime = ("{0:hh\:mm\:ss}" -f $Duration)
     }
     
@@ -468,4 +477,3 @@ else{
     Write-Log "Media refresh completed successfully" "OK"
 
 }
-
