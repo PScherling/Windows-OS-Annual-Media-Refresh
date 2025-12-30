@@ -1,6 +1,6 @@
 # Change Log
 ## Current Release
-Version 0.0.4
+Version 0.0.5
 
 ## Release Notes
 | Version| Release Date | Title | Description | Features | Bug Fixes | Known Issues |
@@ -9,3 +9,4 @@ Version 0.0.4
 | **0.0.2** | 2025-12-24 | Pre-Release | Initial first attempt | Restructuring the handleing of "base" media directory and workflow. |  |  |
 | **0.0.3** | 2025-12-29 | Pre-Release | Initial first attempt | Errorhandling for mounted windows images after foregoing failure. |  |  |
 | **0.0.4** | 2025-12-30 | Pre-Release | Initial first attempt | Prompt if user executes script not in december. |  |  |
+| **0.0.5** | 2025-12-30 | Pre-Release | Initial first attempt | Handle SSUs correctly. |  |  |
