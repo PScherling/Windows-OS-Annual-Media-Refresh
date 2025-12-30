@@ -1,9 +1,9 @@
 <#
 .SYNOPSIS
-    Annual offline refresh of Windows 10/11 Enterprise LTSC or Windows Server 2021/2025 base installation media.
+    Annual offline refresh of Windows 10/11 Enterprise LTSC or Windows Server 2022/2025 base installation media.
 
 .DESCRIPTION
-    This script automates the annual refresh of Windows 10/11 Enterprise LTSC and Windows Server 2021/2025
+    This script automates the annual refresh of Windows 10/11 Enterprise LTSC and Windows Server 2022/2025
     installation media by performing offline servicing of the base OS and Windows Recovery Environment
     (WinRE).
 
@@ -455,3 +455,4 @@ else{
     Write-Log "Media refresh completed successfully" "OK"
 
 }
+
