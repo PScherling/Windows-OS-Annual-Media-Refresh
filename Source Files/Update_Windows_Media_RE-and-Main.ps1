@@ -167,15 +167,15 @@ if (-not $ISO) {
     throw "No ISO found in this directory" 
 }
 
-$LCU = Get-ChildItem $LCU_DIR -Filter "*.msu" | Sort-Object LastWriteTime -Descending #| Select-Object -First 1
+$LCU = Get-ChildItem $LCU_DIR -Filter "*.msu" | Sort-Object Name #| Select-Object -First 1
 if (-not $LCU) { 
     Write-Log "No LCU found in $LCU_DIR" "ERROR"
     throw "No LCU found in this directory" 
 }
 
-$SafeOS = Get-ChildItem $SAFEOS_DIR -Filter "*.cab" | Sort-Object LastWriteTime -Descending -ErrorAction SilentlyContinue
-$DotNetCUs = Get-ChildItem $DOTNET_DIR -Filter "*.msu" | Sort-Object LastWriteTime -Descending -ErrorAction SilentlyContinue
-$SSUs = Get-ChildItem $SSU_DIR -Filter "*.msu" | Sort-Object LastWriteTime -Descending -ErrorAction SilentlyContinue
+$SafeOS = Get-ChildItem $SAFEOS_DIR -Filter "*.cab" | Sort-Object Name -ErrorAction SilentlyContinue
+$DotNetCUs = Get-ChildItem $DOTNET_DIR -Filter "*.msu" | Sort-Object Name -ErrorAction SilentlyContinue
+$SSUs = Get-ChildItem $SSU_DIR -Filter "*.msu" | Sort-Object Name -ErrorAction SilentlyContinue
 
 Write-Log "ISO     : $($ISO.Name)"
 Write-Log "LCU     : $($LCU.Name)"
