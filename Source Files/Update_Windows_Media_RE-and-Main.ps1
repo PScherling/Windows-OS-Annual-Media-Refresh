@@ -32,10 +32,11 @@
           Contact: @Patrick Scherling
           Primary: @Patrick Scherling
           Created: 2025-12-23
-          Modified: 2025-12-24
+          Modified: 2025-12-29
 
           Version - 0.0.1 - (2025-12-23) - Finalized functional version 1 (enterprise-safe, rerunnable, year-isolated, WinRE-compliant).
           Version - 0.0.2 - (2025-12-24) - Restructuring the handleing of "base" media directory and workflow
+          Version - 0.0.3 - (2025-12-29) - Errorhandling for mounted windows images after foregoing failure
 
 
 .EXAMPLE
@@ -66,7 +67,7 @@ $ScriptStartTime = Get-Date
 #------------------------------------------------------------
 # Paths
 #------------------------------------------------------------
-$Version        = "0.0.2"
+$Version        = "0.0.3"
 $Year           = (Get-Date).Year
 $BASE_PATH      = "D:\mediaRefresh"
 $BASE_YEAR_PATH = "$BASE_PATH\base\$Year"
@@ -152,7 +153,7 @@ if (-not $ISO) {
     throw "No ISO found in this directory" 
 }
 
-$LCU = Get-ChildItem $LCU_DIR -Filter "*.msu" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+$LCU = Get-ChildItem $LCU_DIR -Filter "*.msu" | Sort-Object LastWriteTime -Descending #| Select-Object -First 1
 if (-not $LCU) { 
     Write-Log "No LCU found in $LCU_DIR" "ERROR"
     throw "No LCU found in this directory" 
@@ -271,18 +272,65 @@ Write-Host "--------------------------------------------------------------------
 # Process install.wim images
 #------------------------------------------------------------
 $InstallWim = "$NEW_MEDIA\sources\install.wim"
+
+# Defensive unmount before mounting
+Write-Log "Checking for existing mounted WIMs"
+
+$mountedInfo = dism /Get-MountedWimInfo
+
+if ($mountedInfo -match "Mount Dir") {
+    Write-Log "Detected existing mounted WIM(s). Forcing cleanup." "WARN"
+
+    # Attempt graceful cleanup first
+    dism /Cleanup-Wim | Out-Null
+
+    # Re-check
+    $mountedInfo = dism /Get-MountedWimInfo
+    if ($mountedInfo -match "Mount Dir") {
+        Write-Log "Stale mount still detected. Manual intervention may be required." "ERROR"
+        throw "Unable to clear mounted WIM state"
+    }
+}
+
 $Images = Get-WindowsImage -ImagePath $InstallWim
 
 Remove-Item "$WORK\install_refreshed.wim" -ErrorAction SilentlyContinue
 
+# Ensure clean mount directory
+Write-Log "Checking for mounted windows images"
+$mnt = Get-WindowsImage -Mounted
+if($mnt){
+    Write-Log "Stale mounted images found. We need to remove them..." WARN
+    foreach($mount in $mnt){
+        if($mount.ImagePath -like "$($BASE_YEAR_PATH)\*") {
+            Write-Log "Try dismounting image from: $($mount.Path)"
+            Dismount-WindowsImage -Path $mount.Path -Discard -ErrorAction Stop
+        }
+    }
+}
+
+if (Test-Path $WINRE_MOUNT) {
+    Write-Log "Removing stale mount directory $WINRE_MOUNT" "WARN"
+    Remove-Item $WINRE_MOUNT -Recurse -Force -ErrorAction SilentlyContinue
+}
+
 foreach ($Image in $Images) {
+     # Per-image mount directory (critical)
+    $MAIN_MOUNT = Join-Path $WORK "MainOS_Index_$($Image.ImageIndex)"
+
+    # Ensure clean mount directory
+    if (Test-Path $MAIN_MOUNT) {
+        Write-Log "Removing stale mount directory $MAIN_MOUNT" "WARN"
+        Remove-Item $MAIN_MOUNT -Recurse -Force -ErrorAction SilentlyContinue
+    }
 
     $MainMounted = $false
     Write-Log "============================================="
-
     try {
+        # Mounting OS
+        New-Item -ItemType Directory -Path $MAIN_MOUNT | Out-Null
         Write-Log "Mounting Main OS: $($Image.ImageName) (Image Index $($Image.ImageIndex))"
-        Mount-WindowsImage -ImagePath $InstallWim -Index $Image.ImageIndex -Path $MAIN_MOUNT
+        Mount-WindowsImage -ImagePath $InstallWim -Index $Image.ImageIndex -Path $MAIN_MOUNT -ErrorAction Stop
         $MainMounted = $true
 
         #----------------------------------------------------
@@ -311,7 +359,7 @@ foreach ($Image in $Images) {
             finally {
                 if ($WinREMounted) {
                     Write-Log "Dismounting WinRE"
-                    Dismount-WindowsImage -Path $WINRE_MOUNT -Save -ErrorAction SilentlyContinue
+                    Dismount-WindowsImage -Path $WINRE_MOUNT -Save -ErrorAction Stop
                 }
             }
 
@@ -321,8 +369,10 @@ foreach ($Image in $Images) {
         #----------------------------------------------------
         # Main OS servicing
         #----------------------------------------------------
-        Write-Log "Adding LCU: $($LCU.Name)"
-        Add-WindowsPackage -Path $MAIN_MOUNT -PackagePath $LCU.FullName #| Out-Null
+        foreach ($lcufile in $LCU){
+            Write-Log "Adding LCU: $($lcufile.Name)"
+            Add-WindowsPackage -Path $MAIN_MOUNT -PackagePath $lcufile.FullName #| Out-Null
+        }
 
         if ($DotNetCUs) {
             foreach ($pkg in $DotNetCUs) {
@@ -336,16 +386,15 @@ foreach ($Image in $Images) {
     finally {
         if ($MainMounted) {
             Write-Log "Dismounting Main OS: $($Image.ImageName) (Index $($Image.ImageIndex))"
-            Dismount-WindowsImage -Path $MAIN_MOUNT -Save -ErrorAction SilentlyContinue #| Out-Null
+            Dismount-WindowsImage -Path $MAIN_MOUNT -Save -ErrorAction Stop #| Out-Null
         }
     }
 
     Write-Log "Exporting refreshed image $($Image.ImageName) (Index $($Image.ImageIndex))"
-    Export-WindowsImage `
-        -SourceImagePath $InstallWim `
-        -SourceIndex $Image.ImageIndex `
-        -DestinationImagePath "$WORK\install_refreshed.wim" `
-        -CheckIntegrity #| Out-Null
+    Export-WindowsImage -SourceImagePath $InstallWim -SourceIndex $Image.ImageIndex -DestinationImagePath "$WORK\install_refreshed.wim" -CheckIntegrity #| Out-Null
+
+    Write-Log "Cleanup of mount directoty"
+    Remove-Item $MAIN_MOUNT -Recurse -Force -ErrorAction SilentlyContinue
 }
 
 Write-Host "-----------------------------------------------------------------------------------"
