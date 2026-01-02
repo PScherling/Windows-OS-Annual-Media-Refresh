@@ -18,8 +18,6 @@ My solution is inspired by this article from microsoft: https://learn.microsoft.
 ### Windows Server 2022 Refresh ###
 <img width="1579" height="851" alt="image" src="https://github.com/user-attachments/assets/4f0d725d-1cbc-4eba-a6c2-87956a38601c" />
 
-### Windows 10 Enterprise LTSC 2021 Refresh ###
-
 
 ---
 
