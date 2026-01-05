@@ -26,19 +26,20 @@
 	https://github.com/PScherling
 	
 .NOTES
-          FileName: Update_Windows_Media_RE-and-Main.ps1
+          FileName: Update_Windows_Media_OS_RE_PE.ps1
           Solution: Windows 11 OS Based Annual Base Media Refresh
           Author: Patrick Scherling
           Contact: @Patrick Scherling
           Primary: @Patrick Scherling
           Created: 2025-12-23
-          Modified: 2025-12-30
+          Modified: 2026-01-05
 
           Version - 0.0.1 - (2025-12-23) - Finalized functional version 1 (enterprise-safe, rerunnable, year-isolated, WinRE-compliant).
           Version - 0.0.2 - (2025-12-24) - Restructuring the handleing of "base" media directory and workflow
           Version - 0.0.3 - (2025-12-29) - Errorhandling for mounted windows images after foregoing failure
           Version - 0.0.4 - (2025-12-30) - Prompt if user executes script not in december
           Version - 0.0.5 - (2025-12-30) - Handle SSUs correctly
+          Version - 0.0.6 - (2026-01-05) - Including Windows-PE update functionality and renaming script
 
 
 .EXAMPLE
@@ -69,7 +70,7 @@ $ScriptStartTime = Get-Date
 #------------------------------------------------------------
 # Paths
 #------------------------------------------------------------
-$Version        = "0.0.5"
+$Version        = "0.0.6"
 $Year           = (Get-Date).Year
 $BASE_PATH      = "D:\mediaRefresh"
 $BASE_YEAR_PATH = "$BASE_PATH\base\$Year"
@@ -167,15 +168,15 @@ if (-not $ISO) {
     throw "No ISO found in this directory" 
 }
 
-$LCU = Get-ChildItem $LCU_DIR -Filter "*.msu" | Sort-Object Name #| Select-Object -First 1
+$LCU = Get-ChildItem $LCU_DIR -Filter "*.msu" | Sort-Object LastWriteTime -Descending #| Select-Object -First 1
 if (-not $LCU) { 
     Write-Log "No LCU found in $LCU_DIR" "ERROR"
     throw "No LCU found in this directory" 
 }
 
-$SafeOS = Get-ChildItem $SAFEOS_DIR -Filter "*.cab" | Sort-Object Name -ErrorAction SilentlyContinue
-$DotNetCUs = Get-ChildItem $DOTNET_DIR -Filter "*.msu" | Sort-Object Name -ErrorAction SilentlyContinue
-$SSUs = Get-ChildItem $SSU_DIR -Filter "*.msu" | Sort-Object Name -ErrorAction SilentlyContinue
+$SafeOS = Get-ChildItem $SAFEOS_DIR -Filter "*.cab" | Sort-Object LastWriteTime -Descending -ErrorAction SilentlyContinue
+$DotNetCUs = Get-ChildItem $DOTNET_DIR -Filter "*.msu" | Sort-Object LastWriteTime -Descending -ErrorAction SilentlyContinue
+$SSUs = Get-ChildItem $SSU_DIR -Filter "*.msu" | Sort-Object LastWriteTime -Descending -ErrorAction SilentlyContinue
 
 Write-Log "ISO     : $($ISO.Name)"
 Write-Log "LCU     : $($LCU.Name)"
@@ -285,7 +286,6 @@ Write-Host "--------------------------------------------------------------------
 #------------------------------------------------------------
 # Process install.wim images
 #------------------------------------------------------------
-$InstallWim = "$NEW_MEDIA\sources\install.wim"
 
 # Defensive unmount before mounting
 Write-Log "Checking for existing mounted WIMs"
@@ -306,7 +306,21 @@ if ($mountedInfo -match "Mount Dir") {
     }
 }
 
-$Images = Get-WindowsImage -ImagePath $InstallWim
+$InstallWim = "$NEW_MEDIA\sources\install.wim"
+$BootWim = "$NEW_MEDIA\sources\boot.wim"
+if(Test-Path $InstallWim){
+    $Images = Get-WindowsImage -ImagePath $InstallWim
+    $WimPath = $InstallWim
+}
+elseif(Test-Path $BootWim){
+    $Images = Get-WindowsImage -ImagePath $BootWim
+    $WimPath = $BootWim
+}
+else{
+    Write-Log "No Windows Images found." "ERROR"
+    throw "No Windows Images found"
+}
+
 
 Remove-Item "$WORK\install_refreshed.wim" -ErrorAction SilentlyContinue
 
@@ -344,7 +358,7 @@ foreach ($Image in $Images) {
         # Mounting OS
         New-Item -ItemType Directory -Path $MAIN_MOUNT | Out-Null
         Write-Log "Mounting Main OS: $($Image.ImageName) (Image Index $($Image.ImageIndex))"
-        Mount-WindowsImage -ImagePath $InstallWim -Index $Image.ImageIndex -Path $MAIN_MOUNT -ErrorAction Stop
+        Mount-WindowsImage -ImagePath $WimPath -Index $Image.ImageIndex -Path $MAIN_MOUNT -ErrorAction Stop
         $MainMounted = $true
 
         #----------------------------------------------------
@@ -413,7 +427,7 @@ foreach ($Image in $Images) {
     }
 
     Write-Log "Exporting refreshed image $($Image.ImageName) (Index $($Image.ImageIndex))"
-    Export-WindowsImage -SourceImagePath $InstallWim -SourceIndex $Image.ImageIndex -DestinationImagePath "$WORK\install_refreshed.wim" -CheckIntegrity #| Out-Null
+    Export-WindowsImage -SourceImagePath $WimPath -SourceIndex $Image.ImageIndex -DestinationImagePath "$WORK\install_refreshed.wim" -CheckIntegrity #| Out-Null
 
     Write-Log "Cleanup of mount directoty"
     Remove-Item $MAIN_MOUNT -Recurse -Force -ErrorAction SilentlyContinue
@@ -423,8 +437,9 @@ Write-Host "--------------------------------------------------------------------
 #------------------------------------------------------------
 # Replace install.wim
 #------------------------------------------------------------
-Write-Log "Replacing install.wim"
-Move-Item "$WORK\install_refreshed.wim" $InstallWim -Force
+Write-Log "Replacing wim file"
+Move-Item "$WORK\install_refreshed.wim" $WimPath -Force
+
 #------------------------------------------------------------
 # Final cleanup
 #------------------------------------------------------------
@@ -436,7 +451,7 @@ if (Test-Path $WORK) {
     Remove-Item $WORK -Recurse -Force -ErrorAction SilentlyContinue
 }
 
-$FinalImages = Get-WindowsImage -ImagePath "$NEW_MEDIA\sources\install.wim"
+$FinalImages = Get-WindowsImage -ImagePath "$($WimPath)"
 if ($FinalImages.Count -ne $Images.Count) {
     Write-Log "Final install.wim image count mismatch. Aborting completion marker." "ERROR"
     throw "Final install.wim image count mismatch. Aborting completion marker."
