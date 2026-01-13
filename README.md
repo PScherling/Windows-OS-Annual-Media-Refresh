@@ -5,13 +5,6 @@
 
 # Windows Offline Media Refresh (LTSC / Server)
 
-![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue)
-![Platform](https://img.shields.io/badge/Platform-Windows-blue)
-![Servicing](https://img.shields.io/badge/Servicing-Offline-important)
-![Audience](https://img.shields.io/badge/Audience-Enterprise-informational)
-
-# Windows Offline Media Refresh (LTSC / Server)
-
 Enterprise-grade PowerShell script for **annual offline servicing of Windows installation media** using DISM.
 
 This project automates the refresh of:
