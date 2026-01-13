@@ -1,15 +1,23 @@
+![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue)
+![Platform](https://img.shields.io/badge/Platform-Windows-blue)
+![Servicing](https://img.shields.io/badge/Servicing-Offline-important)
+![Audience](https://img.shields.io/badge/Audience-Enterprise-informational)
+
 # Windows Offline Media Refresh (LTSC / Server)
 
 Enterprise-grade PowerShell script for **annual offline servicing of Windows installation media** using DISM.
 
 This project automates the refresh of:
 
-- **Windows 10/11 Enterprise LTSC**
+- **Windows 10/11 (Pro, Business, Enterprise LTSC)**
 - **Windows Server 2022/2025**
 
 by injecting the latest cumulative updates into the base installation media in a **safe, repeatable, auditable, and logged** way.
 
-My solution is inspired by this article from microsoft: https://learn.microsoft.com/en-us/windows/deployment/update/media-dynamic-update
+This project is inspired by Microsoft’s documentation on Dynamic Update: 
+https://learn.microsoft.com/en-us/windows/deployment/update/media-dynamic-update
+
+While Microsoft provides detailed guidance on the concepts and required steps, it does not offer a complete, end-to-end reference implementation for offline media refresh scenarios. This toolkit builds upon the documented approach and provides a fully automated, auditable, and repeatable solution suitable for enterprise environments.
 
 ## Examples ##
 ### Windows 11 Enterprise LTSC 2024 Refresh ###
