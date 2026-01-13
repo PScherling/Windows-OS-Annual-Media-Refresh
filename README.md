@@ -9,8 +9,9 @@ Enterprise-grade PowerShell script for **annual offline servicing and refresh of
 
 This project automates the refresh of:
 
-- **Windows 10/11 Enterprise LTSC** (primary target)
+- **Windows 10/11 Enterprise LTSC**
 - **Windows Server 2022/2025**
+- **Preinstallation Environment**
 - Windows 10/11 Home, Pro & Business etc. (supported but not fully tested)
 
 by injecting the latest cumulative updates into the base installation media in a **safe, repeatable, auditable, and logged** way.
