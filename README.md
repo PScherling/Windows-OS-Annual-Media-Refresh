@@ -3,7 +3,7 @@
 ![Servicing](https://img.shields.io/badge/Servicing-Offline-important)
 ![Audience](https://img.shields.io/badge/Audience-Enterprise-informational)
 
-# Windows Offline Media Refresh (LTSC / Server)
+# Windows Offline Media Refresh
 
 Enterprise-grade PowerShell script for **annual offline servicing and refresh of Windows installation media** using DISM.
 
