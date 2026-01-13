@@ -11,7 +11,7 @@ This project automates the refresh of:
 
 - **Windows 10/11 (Pro, Business, Enterprise LTSC)** (primary target)
 - **Windows Server 2022/2025**
-- Windows 10/11 Home, Pro & Business etc. (supported but not the primary design target)
+- Windows 10/11 Home, Pro & Business etc. (supported but not fully tested)
 
 by injecting the latest cumulative updates into the base installation media in a **safe, repeatable, auditable, and logged** way.
 
