@@ -43,7 +43,7 @@
 
 
 .EXAMPLE
-	.\Update_Windows_Media_RE-and-Main.ps1
+	.\Update_Windows_Media_OS_RE_PE.ps1
 
     Runs the annual offline servicing workflow using the most recent ISO and LCU available in the configured directories. 
     Requires administrative privileges.
@@ -492,3 +492,4 @@ else{
     Write-Log "Media refresh completed successfully" "OK"
 
 }
+
